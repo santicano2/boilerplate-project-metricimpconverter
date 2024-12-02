@@ -1,7 +1,7 @@
 function ConvertHandler() {
   this.getNum = function (input) {
     // Remove unit to isolate number part
-    const numPart = input.replace(/[a-zA-Z]/g, "");
+    const numPart = input.replace(/[a-zA-Z]/g, "").trim();
 
     // Default to 1 if no number provided
     if (numPart === "") {
@@ -42,7 +42,10 @@ function ConvertHandler() {
 
   this.getUnit = function (input) {
     // Extract unit and validate
-    const unitPart = input.replace(/^[\d\.\/ ]+/, "").toLowerCase();
+    const unitPart = input
+      .replace(/^[\d\.\/ ]+/, "")
+      .toLowerCase()
+      .trim();
 
     const validUnits = {
       gal: "gal",

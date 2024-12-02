@@ -29,15 +29,18 @@ module.exports = function (app) {
 
     // Priority for error responses
     if (numberError && unitError) {
-      return res.status(400).type("text").send("invalid number and unit");
+      res.send("invalid number and unit");
+      return;
     }
 
     if (unitError) {
-      return res.status(400).type("text").send("invalid unit");
+      res.send("invalid unit");
+      return;
     }
 
     if (numberError) {
-      return res.status(400).type("text").send("invalid number");
+      res.send("invalid number");
+      return;
     }
 
     // If no errors, perform conversion
