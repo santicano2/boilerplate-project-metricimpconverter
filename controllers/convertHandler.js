@@ -1,42 +1,38 @@
 function ConvertHandler() {
   this.getNum = function (input) {
-    // Handle number parsing with comprehensive support
-    // Default to 1 if no number is provided
-    if (input.replace(/[a-zA-Z]/g, "") === "") {
+    // Remove unit to isolate number part
+    const numPart = input.replace(/[a-zA-Z]/g, "");
+
+    // Default to 1 if no number provided
+    if (numPart === "") {
       return 1;
     }
 
-    // Check for double fraction (invalid case)
-    if ((input.match(/\//g) || []).length > 1) {
+    // Check for multiple fractions
+    if ((numPart.match(/\//g) || []).length > 1) {
       throw new Error("invalid number");
     }
 
-    // Extract numeric part
-    const numPart = input.replace(/[a-zA-Z]/g, "");
-
-    // Parse different number formats
     let result;
     if (numPart.includes("/")) {
-      // Fraction case
+      // Fraction parsing
       const [numerator, denominator] = numPart.split("/").map(parseFloat);
 
-      // Validate fraction
       if (isNaN(numerator) || isNaN(denominator) || denominator === 0) {
         throw new Error("invalid number");
       }
 
       result = numerator / denominator;
     } else {
-      // Whole or decimal number
+      // Number parsing
       result = parseFloat(numPart);
 
-      // Validate number
       if (isNaN(result)) {
         throw new Error("invalid number");
       }
     }
 
-    // Check for negative or zero numbers
+    // Check for positive number
     if (result <= 0) {
       throw new Error("invalid number");
     }
@@ -57,11 +53,13 @@ function ConvertHandler() {
       km: "km",
     };
 
-    if (!validUnits[unitPart]) {
+    const normalizedUnit = validUnits[unitPart];
+
+    if (!normalizedUnit) {
       throw new Error("invalid unit");
     }
 
-    return validUnits[unitPart];
+    return normalizedUnit;
   };
 
   this.getReturnUnit = function (initUnit) {

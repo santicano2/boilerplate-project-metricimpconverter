@@ -9,20 +9,41 @@ module.exports = function (app) {
   app.get("/api/convert", function (req, res) {
     const input = req.query.input;
 
+    let initNum, initUnit;
+    let numberError = false;
+    let unitError = false;
+
+    // Parse number first
     try {
-      // parse number
-      const initNum = convertHandler.getNum(input);
+      initNum = convertHandler.getNum(input);
+    } catch (error) {
+      numberError = true;
+    }
 
-      // parse unit
-      const initUnit = convertHandler.getUnit(input);
+    // Parse unit next
+    try {
+      initUnit = convertHandler.getUnit(input);
+    } catch (error) {
+      unitError = true;
+    }
 
-      // get return unit
+    // Priority for error responses
+    if (numberError && unitError) {
+      return res.status(400).type("text").send("invalid number and unit");
+    }
+
+    if (unitError) {
+      return res.status(400).type("text").send("invalid unit");
+    }
+
+    if (numberError) {
+      return res.status(400).type("text").send("invalid number");
+    }
+
+    // If no errors, perform conversion
+    try {
       const returnUnit = convertHandler.getReturnUnit(initUnit);
-
-      // perform conversion
       const returnNum = convertHandler.convert(initNum, initUnit);
-
-      // create response string
       const toString = convertHandler.getString(
         initNum,
         initUnit,
@@ -30,7 +51,6 @@ module.exports = function (app) {
         returnUnit
       );
 
-      // construct full response object
       const response = {
         initNum: initNum,
         initUnit: initUnit,
@@ -41,19 +61,7 @@ module.exports = function (app) {
 
       res.json(response);
     } catch (error) {
-      // Handle different error scenarios
-      if (
-        error.message === "invalid number" &&
-        error.message === "invalid unit"
-      ) {
-        res.status(400).send("invalid number and unit");
-      } else if (error.message === "invalid number") {
-        res.status(400).send("invalid number");
-      } else if (error.message === "invalid unit") {
-        res.status(400).send("invalid unit");
-      } else {
-        res.status(500).send("Error processing conversion");
-      }
+      res.status(500).type("text").send("Error processing conversion");
     }
   });
 };
